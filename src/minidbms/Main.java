@@ -4,9 +4,20 @@
  */
 package minidbms;
 
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import minidbms.ui.VentanaPrincipal;
+
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Mini DBMS funcionando");
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                
+            }
+            new VentanaPrincipal().setVisible(true);
+        });
     }
 }
