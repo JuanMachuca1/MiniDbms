@@ -48,6 +48,18 @@ public final class Valores {
         }
         return fecha;
     }
+    public static String aTexto(Object valor) {
+        if (valor == null) {
+            return "";
+        }
+        if (valor instanceof Boolean b) {
+            return b ? "Sí" : "No";
+        }
+        if (valor instanceof Double d) {
+            return BigDecimal.valueOf(d).toPlainString();
+        }
+        return valor.toString();
+    }
 
     private static Boolean convertirBooleano(String t) throws ErrorBD {
         return switch (t.toLowerCase()) {
@@ -56,4 +68,5 @@ public final class Valores {
             default -> throw new ErrorBD("\"" + t + "\" no es Sí ni No");
         };
     }
+    
 }
