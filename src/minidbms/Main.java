@@ -6,18 +6,19 @@ package minidbms;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import minidbms.ui.VentanaPrincipal;
+import minidbms.ui.FrmPrincipal;
+
 
 public class Main {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
             } catch (Exception e) {
                 
             }
-            new VentanaPrincipal().setVisible(true);
+            new FrmPrincipal().setVisible(true);
         });
     }
 }

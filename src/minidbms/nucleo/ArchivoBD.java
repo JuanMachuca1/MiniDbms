@@ -78,7 +78,7 @@ public class ArchivoBD implements AutoCloseable {
             if (binario.longitud() < Encabezado.TAMANO) {
                 throw new ErrorBD("No es un archivo de Mini DBMS: es demasiado pequeño");
             }
-            byte[] enc = binario.leer(0, Encabezado.TAMANO);
+            byte[] enc = binario.leer(0, Encabezado.TAMANO);    
             Encabezado e = Encabezado.desdeBytes(enc);
             if (binario.longitud() < e.finDatos) {
                 throw new ErrorBD("Archivo dañado: está truncado (faltan bytes al final)");
