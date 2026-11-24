@@ -587,16 +587,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
         // ---------- MENU CAMPOS ----------
 
-    private void agregarCampo() throws Exception {
+   private void agregarCampo() throws Exception {
         exigirArchivo();
-        new DialogoCampo(null).mostrar(this, "Agregar campo",
-                archivo.metadata()::agregarCampo);
+        DlgCampo.mostrar(this, "Agregar campo", null, archivo.metadata()::agregarCampo);
     }
 
     private void modificarCampo() throws Exception {
         Campo c = campoSeleccionado();
-        new DialogoCampo(c).mostrar(this, "Modificar " + c.nombre(),
-                archivo.metadata()::modificarCampo);
+        DlgCampo.mostrar(this, "Modificar " + c.nombre(), c, archivo.metadata()::modificarCampo);
     }
 
     private void borrarCampo() throws Exception {
