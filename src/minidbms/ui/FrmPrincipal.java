@@ -17,6 +17,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import minidbms.almacenamiento.Encabezado;
 import minidbms.comun.ErrorBD;
 import minidbms.comun.Politica;
 import minidbms.metadata.Campo;
@@ -482,23 +483,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
         // ---------- MENU ARCHIVO ----------
 
-    private void nuevo() throws Exception {
+     private void nuevo() throws Exception {
         if (!soltarArchivo()) {
             return;
         }
-        JTextField nombre = new JTextField();
-        JComboBox<Politica> politica = new JComboBox<>(Politica.values());
-        JSpinner minimo = new JSpinner(new SpinnerNumberModel(32, 25, 100000, 1));
-        JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
-        panel.add(new JLabel("Nombre del archivo:"));
-        panel.add(nombre);
-        panel.add(new JLabel("Política de la avail list:"));
-        panel.add(politica);
-        panel.add(new JLabel("Tamaño mínimo de hueco (bytes):"));
-        panel.add(minimo);
-        int r = JOptionPane.showConfirmDialog(this, panel, "Nuevo archivo",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (r != JOptionPane.OK_OPTION) {
+        DlgArchivo d = DlgArchivo.pedir(this, "Nuevo archivo", "",
+                Politica.FIRST_FIT, 32, true);
+        if (d == null) {
             return;
         }
         carpeta.mkdirs();
@@ -509,10 +500,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
             return;
         }
         carpeta = elegir.getSelectedFile();
-        archivo = ArchivoBD.crear(carpeta, nombre.getText().strip(),
-                (Politica) politica.getSelectedItem(), (Integer) minimo.getValue());
+        archivo = ArchivoBD.crear(carpeta, d.nombre(), d.politica(), d.minimo());
         estado.setText("Creado " + archivo.ruta());
     }
+
 
     private void abrir() throws Exception {
         if (!soltarArchivo()) {
@@ -567,22 +558,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
         return true;
     }
 
-    private void propiedades() throws Exception {
+     private void propiedades() throws Exception {
         exigirArchivo();
-        JComboBox<Politica> politica = new JComboBox<>(Politica.values());
-        politica.setSelectedItem(archivo.encabezado().politica);
-        JSpinner minimo = new JSpinner(new SpinnerNumberModel(
-                archivo.encabezado().tamMinHueco, 25, 100000, 1));
-        JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
-        panel.add(new JLabel("Política de la avail list:"));
-        panel.add(politica);
-        panel.add(new JLabel("Tamaño mínimo de hueco (bytes):"));
-        panel.add(minimo);
-        int r = JOptionPane.showConfirmDialog(this, panel, "Propiedades",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (r == JOptionPane.OK_OPTION) {
-            archivo.encabezado().politica = (Politica) politica.getSelectedItem();
-            archivo.encabezado().tamMinHueco = (Integer) minimo.getValue();
+        Encabezado e = archivo.encabezado();
+        DlgArchivo d = DlgArchivo.pedir(this, "Propiedades", archivo.metadata().nombre(),
+                e.politica, e.tamMinHueco, false);
+        if (d != null) {
+            e.politica = d.politica();
+            e.tamMinHueco = d.minimo();
         }
     }
         // ---------- MENU CAMPOS ----------
@@ -606,24 +589,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
     }
 
-    private void definirIndice() throws Exception {
+     private void definirIndice() throws Exception {
         Campo c = campoSeleccionado();
         DefIndice actual = archivo.metadata().indiceDe(c.id());
-        JComboBox<String> clase = new JComboBox<>(new String[]{"Único", "No único"});
-        clase.setSelectedIndex(actual != null && !actual.unico() ? 1 : 0);
-        clase.setEnabled(!c.llavePrimaria());
-        JSpinner orden = new JSpinner(new SpinnerNumberModel(
-                actual == null ? Metadata.ORDEN_POR_DEFECTO : actual.orden(), 3, 1000, 1));
-        JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
-        panel.add(new JLabel("Índice:"));
-        panel.add(clase);
-        panel.add(new JLabel("Orden del árbol B:"));
-        panel.add(orden);
-        int r = JOptionPane.showConfirmDialog(this, panel, "Índice de " + c.nombre(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (r == JOptionPane.OK_OPTION) {
-            archivo.metadata().definirIndice(c.id(), (Integer) orden.getValue(),
-                    clase.getSelectedIndex() == 0);
+        DlgIndice d = DlgIndice.pedir(this, "Índice de " + c.nombre(),
+                actual == null || actual.unico(),
+                actual == null ? Metadata.ORDEN_POR_DEFECTO : actual.orden(),
+                !c.llavePrimaria());
+        if (d != null) {
+            archivo.metadata().definirIndice(c.id(), d.orden(), d.unico());
         }
     }
 
